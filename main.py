@@ -123,20 +123,45 @@ def invsticker(id):
             print(f"x{sticker[2]} {stickername} in {plrname}")
 
 
+def export():
+    print("Keep this text somewhere:")
+    print({"Accounts": sql(db, f"SELECT * from players;", 2), "Inventories": sql(db, f"SELECT * from inventory;", 2)})
+
+
+def imports(text):
+    toimport = eval(text)
+    sql(db, "DELETE FROM players;", 1)
+    sql(db, "DELETE FROM inventory;", 1)
+    for e in toimport["Accounts"]:
+        sql(db, f"Insert Into players VALUES {e};", 1)
+    for e in toimport["Inventories"]:
+        sql(db, f"Insert Into inventory VALUES {e};", 1)
+
+    print("Imported !")
+
+
+
+
+
 
 while True:
     cmd = str(input("command ? (help for more information)"))
     if cmd=='help':
-        print("BSS Stickers Manager V0.1 by YT_valentin \n----------------------\n\n##Accounts:\n" \
+        print("BSS Stickers Manager V0.2 by YT_valentin \n----------------------\n\n##Accounts:\n" \
         "createaccount: add a roblox account to the database \n" \
         "showaccount: show all accounts created \n" \
         "deleteaccount: delete an account from the database (and all the stickers associated with this account)\n\n"
         "##Selection:\n"
         "invsticker: Show the selected sticker amount on all accounts\n"
-        "invaccount: show an account's sticker\nselectaccount: select an account to prevent having to type it for every command\n\n"
+        "invaccount: show an account's sticker\nselectaccount: select an account to prevent having to type it for every command\n"
+        "inv: Show the inventory of all accounts\n\n"
         "###Add/Remove:\n"
         "addsticker: add the selected amount of a sticker to the selected account\n"
-        "removesticker: remove the selected amount of a sticker to the selected account")
+        "removesticker: remove the selected amount of a sticker to the selected account\n\n"
+        "###DATA:\n"
+        "export: export all your inventories and accounts into text, useful to transfer data when this updates\n"
+        "import: import the data exported before to prevent you from entering all of them back when it updates\n"
+        "(MAKE SURE NOT TO ENTER SOMEONE ELSE'S DATA IF THE DATA LOOKS DIFFERENT THAN THIS FORMAT: {'Accounts':[stuff], 'Inventories':[stuff]})")
     elif cmd=='createaccount':
         name=str(input("Whats it's roblox name ?"))
         createaccount(name)
@@ -190,7 +215,16 @@ while True:
         name=str(input("Whats the sticker"))
         accid=sql(db, f"SELECT stickerid from stickers where stickername LIKE '{name}%';", 2)
         invsticker(accid)
+    elif cmd=="export":
+        export()
 
+    elif cmd=="import":
+        imported=str(input("Input the data exported before:"))
+        imports(imported)
+    elif cmd=="inv":
+        accid=sql(db, "Select playerid from players;", 2)
+        for ids in accid:
+            invaccount(ids[0])
     else:
         print("This command doesn't exist, do 'help' to see the list of all of them.")
 
